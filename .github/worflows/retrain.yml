@@ -1,0 +1,32 @@
+name: Recommender Data Refresh (No Secrets)
+
+on:
+  push:
+    paths:
+      - 'movies.csv' # Triggers when you upload a new movie list
+  workflow_dispatch:  # Allows you to click the "Run workflow" button manually
+
+jobs:
+  refresh_data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install pandas joblib numpy
+
+      - name: Process New Recommendations
+        run: python train.py  # Generates recommender_data.pkl
+
+      - name: Save Updated Data as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-recommendation-data
+          path: recommender_data.pkl
